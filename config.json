@@ -1,0 +1,9 @@
+{
+    "start_mhz": 100,
+    "end_mhz": 200,
+    "bandwidth_mhz": 10,
+    "cloudrf_api": "https://api.cloudrf.com",
+    "cloudrf_api_key": "",
+    "sdrs": [
+    ]
+}
