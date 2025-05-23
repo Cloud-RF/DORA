@@ -75,7 +75,7 @@ export function RadioList(props: RadioListProps) {
             </div>
           </div>
           {props.data && props.data.sdrs.map((radioData, index) =>
-            <div className={'table-row'}>
+            <div className={'table-row'} key={`${radioData.address}-row`}>
               <div className={'table-cell bg-blue-300 font-bold align-middle group relative'}>
                 <div className={`inline-block align-middle`}
                   style={{ marginLeft: `${addressMarginPx}px`, marginRight: `${addressMarginPx}px` }}

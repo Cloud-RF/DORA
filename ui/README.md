@@ -1,4 +1,4 @@
-## SDR Noise Data Collector
+## DORA user interface
 
 # Purpose
 Front-end for the SDR Noise DataCollector
@@ -14,12 +14,15 @@ Front-end for the SDR Noise DataCollector
 
 # Dependencies
 
-Install Node.js (https://nodejs.org/en)
+Install Node.js (>=20) (https://nodejs.org/en)
 Install yarn (https://classic.yarnpkg.com/)
 
 To install the node dependencies
 - Fetch the code to a local folder
 - Fetch the node dependencies: run the `yarn` command in the /ui folder in the command prompt
+
+# Set the API URL
+To run the UI you will need to set the `VITE_API_URL_BASE` variable in the `ui/e.env` file to point to the URL where you published the API.
 
 # Development Server
 To run the SDR Data COllector locally using the Development Server:

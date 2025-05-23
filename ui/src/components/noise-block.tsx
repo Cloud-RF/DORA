@@ -9,20 +9,20 @@ export type NoiseBlockProps = {
     setHoverText: (hoverText: string) => void
 }
 
-function noiseColorClass(noise: number) {
-    if (noise > -100) { return "bg-red-500" }
-    else if (noise > -110) { return "bg-amber-500" }
-    else { return "bg-green-500" }
-    // if (bandwidth != undefined) {
-    //     let thermalNoise = Math.round(-173.8 + 10 * Math.log10(bandwidth))
-    //     if (noise > thermalNoise + 20) { return "bg-red-500" }
-    //     else if (noise > thermalNoise + 10) { return "bg-amber-500" }
-    //     else { return "bg-green-500" }
-    // } else {
-    //     if (noise > -100) { return "bg-red-500" }
-    //     else if (noise > -110) { return "bg-amber-500" }
-    //     else { return "bg-green-500" }
-    // }
+function noiseColorClass(props: NoiseBlockProps) {
+
+    // Good noise is relative to the bandwidth which is why narrow signals cut through the noise
+    // More bandwidth = More channel noise!
+
+    let noise = props.frequencyNoise.noise
+
+    if (props.bandwidth_mhz != undefined) {
+        let thermalNoise = Math.round(-173.8 + 10 * Math.log10(props.bandwidth_mhz)) // eg. -104dBm for 10MHz
+        if (noise > thermalNoise + 20) { return "bg-red-500" }
+        else if (noise > thermalNoise + 10) { return "bg-amber-500" }
+        else { return "bg-green-500" }
+    }
+
 }
 
 export function NoiseBlock(props: NoiseBlockProps) {
@@ -46,7 +46,7 @@ export function NoiseBlock(props: NoiseBlockProps) {
     return (
         <>
             <div
-                className={`inline-block relative ${noiseColorClass(props.frequencyNoise.noise)} cursor-pointer overflow-visible${tooltipVisible ? ' border-1 border-white' : ''}`}
+                className={`inline-block relative ${noiseColorClass(props)} cursor-pointer overflow-visible${tooltipVisible ? ' border-1 border-white' : ''}`}
                 style={{ width: `${props.blockWidth}px`, height: blockSize }}
                 onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             </div>

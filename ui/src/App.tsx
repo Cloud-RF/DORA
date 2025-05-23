@@ -7,19 +7,20 @@ import { fetchData } from "./api/sdr-api";
 import type { FrequencyRange, SDRData } from './api/radio-data';
 
 function App() {
+  const REFRESH_MS = 5000;
   let [initialFetchRequested, setInitialFetchRequested] = useState(false);
   let [data, setData] = useState<SDRData | null>(null);
   let [frequencyRange, setFrequencyRange] = useState<FrequencyRange>({ startMhz: 0, endMhz: 0, bandwidthMhz: 0 });
 
   function fetchRadioData() {
     fetchData().then(fetchedData => {
-        data = fetchedData;
-        setData(data);
-        frequencyRange.startMhz = data.start_mhz;
-        frequencyRange.endMhz = data.end_mhz;
-        frequencyRange.bandwidthMhz = data.bandwidth_mhz;
-        setFrequencyRange(frequencyRange)
-      })
+      data = fetchedData;
+      setData(data);
+      frequencyRange.startMhz = data.start_mhz;
+      frequencyRange.endMhz = data.end_mhz;
+      frequencyRange.bandwidthMhz = data.bandwidth_mhz;
+      setFrequencyRange(frequencyRange)
+    })
   }
 
   useEffect(() => {
@@ -29,6 +30,11 @@ function App() {
       fetchRadioData();
     }
   });
+
+  useEffect(() => {
+    const intervalId = setInterval(() => { fetchRadioData() }, REFRESH_MS);
+    return () => clearInterval(intervalId);
+  }, []);
 
   function frequencyRangeChanged(freqRange: FrequencyRange) { setFrequencyRange(freqRange) }
 

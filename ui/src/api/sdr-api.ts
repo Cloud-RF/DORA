@@ -1,11 +1,9 @@
 import type { SDRData, Radio, FrequencyRange } from "./radio-data";
 
-export const urlBase = "http://10.0.0.31:8080";
-
 export async function fetchData() {
     return new Promise<SDRData>(async (resolve, reject) => {
         try {
-            fetch(`${urlBase}/data`, {
+            fetch(`${import.meta.env.VITE_API_URL_BASE}/data`, {
                 method: 'GET',
                 mode: 'cors'
             })
@@ -22,7 +20,7 @@ export async function fetchData() {
 export async function addRadio(radio: Radio) {
     return new Promise<void>(async (resolve, reject) => {
         try {
-            fetch(`${urlBase}/node/add`, {
+            fetch(`${import.meta.env.VITE_API_URL_BASE}/node/add`, {
                 method: 'POST',
                 mode: 'cors',
                 // headers: { 'Content-Type': 'application/json' },
@@ -40,7 +38,7 @@ export async function addRadio(radio: Radio) {
 export async function removeRadio(address: string) {
     return new Promise<void>(async (resolve, reject) => {
         try {
-            fetch(`${urlBase}/node/remove`, {
+            fetch(`${import.meta.env.VITE_API_URL_BASE}/node/remove`, {
                 method: 'POST',
                 mode: 'cors',
                 // headers: { 'Content-Type': 'application/json' },
@@ -58,7 +56,7 @@ export async function removeRadio(address: string) {
 export async function tasking(frequencyRange: FrequencyRange) {
     return new Promise<void>(async (resolve, reject) => {
         try {
-            fetch(`${urlBase}/tasking`, {
+            fetch(`${import.meta.env.VITE_API_URL_BASE}/tasking`, {
                 method: 'POST',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },

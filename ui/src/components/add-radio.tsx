@@ -162,8 +162,7 @@ export class AddRadio extends Component<AddRadioProps, AddRadioState> {
                             </div>
                         </div>                        
                     </div>
-                    {!this.state.hasvalidationErrors ? <></> : <div className={`ml-8 mt-2`}>{this.state.validationErrors}</div>}
-                    
+                    {!this.state.hasvalidationErrors ? <></> : <div className={`ml-8 mt-2`}>{this.state.validationErrors}</div>}                    
                 </div>
             </Modal>
         </>

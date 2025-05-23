@@ -54,19 +54,22 @@ def draw_log():
     addstr(1, 2, "Logs / Messages")
 
     for i, message in enumerate(log):
-        if message["err"]:
-            addstr(2 + i, 2, message["text"], curses.color_pair(COLOR_RED))
+        if "color" in message:
+            addstr(2 + i, 2, message["text"], curses.color_pair(message["color"]))
         else:
             addstr(2 + i, 2, message["text"])
 
     log_win.refresh()
 
 
-def log_msg(message, err=False):
+def log_msg(message, color=None):
     global log
 
     for line in message.splitlines():
-        log.append({"text": line, "err": err})
+        if color == None:
+            log.append({"text": line})
+        else:
+            log.append({"text": line, "color": color})
 
     draw_log()
 
@@ -89,6 +92,8 @@ def data_endpoint():
     with data_lock, config_lock:
         with open(CONFIG_FILE, "r") as f:
             config = json.load(f)
+
+        log_msg(f"Data fetched. Origin: {request.origin if request.origin != None else 'unknown'}")
 
         return api_response(
             {
@@ -144,12 +149,14 @@ def node_add_endpoint():
             with open(CONFIG_FILE, "w") as f:
                 f.write(json.dumps(config))
 
+        log_msg(f"Node {address} {'updated' if sdr_found else 'added'} by {request.origin if request.origin != None else 'unknown'}", COLOR_GREEN)
+
         return api_response("Node added successfully")
 
     except Exception as e:
-        log_msg(f"Error: {e}", True)
+        log_msg(f"Error: {e}", COLOR_RED)
 
-        return api_response({"error": f"Unable to add node"}, 500)
+        return api_response({"error": f"Unable to add/update node"}, 500)
 
 
 @app.route("/node/remove", methods=["POST"])
@@ -186,10 +193,12 @@ def node_remove_endpoint():
             with open(CONFIG_FILE, "w") as f:
                 f.write(json.dumps(config))
 
+            log_msg(f"Node {address} removed by {request.origin if request.origin != None else 'unknown'}", COLOR_GREEN)
+
             return api_response("Node removed successfully")
 
     except Exception as e:
-        log_msg(f"Error: {e}", True)
+        log_msg(f"Error: {e}", COLOR_RED)
 
         return api_response({"error": f"Unable to remove node"}, 500)
 
@@ -236,10 +245,16 @@ def tasking_endpoint():
             with open(CONFIG_FILE, "w") as f:
                 f.write(json.dumps(config))
 
+            log_msg(f"Tasking updated:", COLOR_GREEN)
+            log_msg(f"      start_mhz    : {start_mhz}", COLOR_GREEN)
+            log_msg(f"      end_mhz      : {start_mhz}", COLOR_GREEN)
+            log_msg(f"      bandwidth_mhz: {bandwidth_mhz}", COLOR_GREEN)
+            log_msg(f"      origin       : {request.origin if request.origin != None else 'unknown'}", COLOR_GREEN)
+
             return api_response("Tasking updated successfully")
 
     except Exception as e:
-        log_msg(f"Error: {e}", True)
+        log_msg(f"Error: {e}", COLOR_RED)
 
         return api_response({"error": "Unable to update tasking"}, 500)
 
@@ -256,7 +271,7 @@ def draw_output():
         with open(CONFIG_FILE, "r") as f:
             config = json.load(f)
 
-    thermal_noise = -173.8 + 10 * math.log10(config["bandwidth_mhz"])
+    thermal_noise = -173.8 + 10 * math.log10(config["bandwidth_mhz"] * 1e6)
 
     # Wrap win.addstr to prevent writing text outside the window box
     def addstr(y, x, text, *args):
@@ -300,9 +315,9 @@ def draw_output():
                     noise = int(sdr_data["noise"])
 
                     colorpair = COLOR_GREEN
-                    if noise > thermal_noise + 20:
+                    if noise > thermal_noise + 10:
                         colorpair = COLOR_YELLOW
-                    if noise > thermal_noise + 25:
+                    if noise > thermal_noise + 20:
                         colorpair = COLOR_RED
 
                     addstr(
@@ -418,7 +433,7 @@ def collect_thread_fn():
 
                 if err:
                     log_msg(
-                        f"Error collection data from {sdr['address']}: {result}", True
+                        f"Error collection data from {sdr['address']}: {result}", COLOR_RED
                     )
                     continue
 
@@ -511,13 +526,13 @@ def collect_thread_fn():
                 )
             except Exception as e:
                 log_msg(
-                    f"Error posting measurements to {config['cloudrf_api']}: {e}", True
+                    f"Error posting measurements to {config['cloudrf_api']}: {e}", COLOR_RED
                 )
 
         try:
             draw_output()
         except Exception as e:
-            log_msg(f"Failed to draw output {e}", True)
+            log_msg(f"Failed to draw output {e}", COLOR_RED)
 
         time.sleep(DATA_COLLECTION_INTERVAL_S)
 
